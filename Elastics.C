@@ -45,7 +45,7 @@ double finter(double* x, double* par){
   return fabs(f1->EvalPar(x,par) - f2->EvalPar(x,par));
 }
 
-void Elastics(const Int_t kin_no = 4) { 
+void Elastics(const Int_t kin_no = 11) { 
 
   //-----------------------------------------------------------------------------------------------------------------------------
 
@@ -53,18 +53,19 @@ void Elastics(const Int_t kin_no = 4) {
 
   Double_t Eb, th_sbs, th_bb, pcent, pres, runtime, avI;
   Double_t pdiff_off, hcal_dist;
-
-  //Defaults
-  Double_t sh_min  = 0.75;
-  Double_t sh_max  = 1.05;
-  Double_t sh_e    = 0.70;
-  Double_t ps_min  = 0.085; 
-  Double_t W_min   = 0.0; 
-  Double_t W_max   = 4.0; 
-  Double_t W_minc = 0.25;
-  Double_t W_maxc = 1.5;
   
-  if( kin_no == 4) { //need full LH2 run
+  //Elastic Cuts Based on Kinematic Setting
+  Double_t sh_min, sh_max, sh_e, ps_min, W_min, W_max, W_minc, W_maxc;
+  Double_t hcal_ysig, hcal_xsig, hcal_ymean, hcal_xmean, hcal_xcut, hcal_ycut, pdiffcut;
+
+  sh_e = 0.70;
+  
+  W_min   = 0.0; 
+  W_max   = 4.0; 
+  W_minc = 0.25;
+  W_maxc = 1.5;
+  
+  if( kin_no == 4) { //SBS-4
     //sbsmag 30%
     //C->Add("$OUT_DIR/LH2/*11499*.root");
     //C->Add("$OUT_DIR/LH2/*11500*.root");
@@ -76,9 +77,10 @@ void Elastics(const Int_t kin_no = 4) {
     //C->Add("$OUT_DIR/LH2/*11587*.root");
     //C->Add("$OUT_DIR/LH2/*11588*.root");
     //sbsmag 50%
-    C->Add("$OUT_DIR/LH2/*11589*.root");
-    C->Add("$OUT_DIR/LH2/*11590*.root");
-    C->Add("$OUT_DIR/LH2/*11592*.root");
+    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_11589*.root");
+    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_11590*.root");
+    //C->Add("$OUT_DIR/LH2/e1209019_fullreplay_11592*.root");
+    //C->Add("$OUT_DIR/LH2/e1209019_fullreplay_11616*.root");
     
     Eb        = 3.7278;  
     th_bb     = 36.0; 
@@ -88,29 +90,60 @@ void Elastics(const Int_t kin_no = 4) {
     pcent     = 2.122;  
     pres      = 0.02;   
     
-    runtime   = 63 * (1./73.) * 60.;    
+    runtime   = (8. + (63*1./73.) )* 60.;    
     avI       = 3.5;     
 
-    pdiff_off = -0.366;
-  }  
-  else if( kin_no == 7) { //need full LH2 run
-    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_11994*.root");
+    pdiff_off = 0.234;
 
+    sh_min  = 0.55;
+    sh_max  = 0.85;
+    ps_min  = 0.1;
+
+    hcal_xmean = -0.40;
+    hcal_xsig = 0.1;
+    hcal_ymean = -0.70;
+    hcal_ysig = 0.1;
+      
+    pdiffcut = 0.2;
+
+    W_minc = 0.0;
+    W_maxc = 4.0;
+
+  }  
+  else if( kin_no == 7) { //SBS-7
+    // C->Add("$OUT_DIR/e1209019_fullreplay_11994_stream0_seg0_99.root");
+    C->Add("$OUT_DIR/e1209019_fullreplay_11994_stream0_seg0_99*.root");
+    
     Eb      = 7.906;   
     th_bb   = 40.0;   
     th_sbs  = 16.1; 
-    hcal_dist = 8.5;
+    hcal_dist = 14.0;
     
     pcent   = 2.670;  
     pres    = 0.02;   
     
-    runtime = 5185+5667+4310;   
-    avI     = (5.3*5.2+5.1*5.7+6.0*4.3)/(5.2+5.7+4.3);  
-    
-    pdiff_off = 0.16;
+    runtime = 87. * (3.975 / 10.) * 60.;   
+    avI = 8;
+      
+    pdiff_off = -0.206;
 
+    sh_min  = 0.60;
+    sh_max  = 0.95;
+    ps_min  = 0.10;
+      
+    hcal_xmean = -1.0;
+    hcal_xsig = 0.25;
+    hcal_ymean = -0.2;
+    hcal_ysig = 0.25;
+      
+    pdiffcut = 0.05;
+
+    W_min = 0.0;
+    W_max = 4.0;
+    W_minc = 0.0;
+    W_maxc = 4.0;
   }
-  else if( kin_no == 11) { //need full LH2 run
+  else if( kin_no == 11) { //need full LH2 run + calibrated
     C->Add("$OUT_DIR/LH2/e1209019_fullreplay_12313*.root");
     C->Add("$OUT_DIR/LH2/e1209019_fullreplay_12320*.root");
     C->Add("$OUT_DIR/LH2/e1209019_fullreplay_12345*.root");
@@ -118,16 +151,27 @@ void Elastics(const Int_t kin_no = 4) {
     Eb      = 9.91;   
     th_bb   = 42.0; 
     th_sbs  = 13.3; 
-    hcal_dist = 8.5;
+    hcal_dist = 14.5;
 
     pcent   = 2.670;  
     pres    = 0.02;   
 
-    runtime = 3569+4443+5664;   
-    avI     = (11.98*3.6+8.4*4.4+11.6*5.7)/(3.6+4.4+5.7);
-    avI     = avI/1.5;
+    //runtime = 3569+4443+5664;   
+    //avI     = (11.98*3.6+8.4*4.4+11.6*5.7)/(3.6+4.4+5.7);
+    //avI     = avI/1.5;
     
     pdiff_off = 0.23;
+
+    sh_min  = 0.75;
+    sh_max  = 1.05;
+    ps_min  = 0.07;
+
+    hcal_xmean = -0.64;
+    hcal_xsig = 0.077;
+    hcal_ymean = -0.45;
+    hcal_ysig = 0.15;
+     
+    pdiffcut = 0.1;
   }
   else if( kin_no == 14) {
     C->Add("$OUT_DIR/LH2/e1209019_fullreplay12313*.root");
@@ -144,9 +188,19 @@ void Elastics(const Int_t kin_no = 4) {
    
     runtime = 3569+4443+5664;
     avI     = (11.98*3.6+8.4*4.4+11.6*5.7)/(3.6+4.4+5.7);
-    avI     = avI/1.5;
-
+    
     pdiff_off = 0.23;
+
+    sh_min  = 0.75;
+    sh_max  = 1.05;
+    ps_min  = 0.07;
+    
+    hcal_xmean = -0.676;
+    hcal_xsig = 0.113;
+    hcal_ymean = -0.171;
+    hcal_ysig = 0.155;
+    
+    pdiffcut = 0.1;
   }
   else if( kin_no == 8) {
     //production
@@ -168,6 +222,17 @@ void Elastics(const Int_t kin_no = 4) {
     avI     = 8.0;
     
     pdiff_off = -0.03;
+
+    sh_min  = 0.70;
+    sh_max  = 1.05;
+    ps_min  = 0.07;
+      
+    hcal_xmean = -0.676;
+    hcal_xsig = 0.113;
+    hcal_ymean = -0.171;
+    hcal_ysig = 0.155;
+    
+    pdiffcut = 0.1;
    }
   else if( kin_no == 9) {
     //production
@@ -188,6 +253,17 @@ void Elastics(const Int_t kin_no = 4) {
     avI     = 15.;
     
     pdiff_off = 0.29;
+
+    sh_min  = 0.70;
+    sh_max  = 0.95;
+    ps_min  = 0.12;
+    
+    hcal_xmean = -0.634;
+    hcal_xsig = 0.094;
+    hcal_ymean = -0.460;
+    hcal_ysig = 0.155;
+    
+    pdiffcut = 0.2;
   }
   GMnTree* T = new GMnTree(C);
   Long64_t nentries = C->GetEntries();
@@ -502,84 +578,9 @@ void Elastics(const Int_t kin_no = 4) {
     hhcal_deltay->Fill(delta_y);
     hhcal_deltaxy->Fill(delta_y,delta_x);
     
-    //Elastic Cuts Based on Kinematic Setting
-    Double_t hcal_ysig, hcal_xsig, hcal_ymean, hcal_xmean, hcal_xcut, hcal_ycut, pdiffcut;
-    if (kin_no == 4){
-      sh_min  = 0.55;
-      sh_max  = 0.85;
-      ps_min  = 0.1;
-
-      hcal_xmean = -0.70;
-      hcal_xsig = 0.1;
-      hcal_ymean = 1.30;
-      hcal_ysig = 0.1;
-      
-      pdiffcut = 0.1;
-    }
-    else if (kin_no == 7){//not yet calibrated
-      sh_min  = 0.75;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-      
-      hcal_xmean = -0.64;
-      hcal_xsig = 0.077;
-      hcal_ymean = -0.45;
-      hcal_ysig = 0.15;
-      
-      pdiffcut = 0.1;
-    }
-    else if (kin_no == 11){//not yet calibrated
-      sh_min  = 0.75;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-
-      hcal_xmean = -0.64;
-      hcal_xsig = 0.077;
-      hcal_ymean = -0.45;
-      hcal_ysig = 0.15;
-     
-      pdiffcut = 0.1;
-    }
-    else if(kin_no ==14){//not yet calibrated
-      sh_min  = 0.75;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-      
-      hcal_xmean = -0.676;
-      hcal_xsig = 0.113;
-      hcal_ymean = -0.171;
-      hcal_ysig = 0.155;
-      
-      pdiffcut = 0.1;
-    }
-    else if (kin_no == 8){//calibrated
-      sh_min  = 0.70;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-      
-      hcal_xmean = -0.676;
-      hcal_xsig = 0.113;
-      hcal_ymean = -0.171;
-      hcal_ysig = 0.155;
-      
-      pdiffcut = 0.1;
-    }
-    else if (kin_no == 9 ){//calibrated
-      sh_min  = 0.70;
-      sh_max  = 0.95;
-      ps_min  = 0.12;
- 
-      hcal_xmean = -0.634;
-      hcal_xsig = 0.094;
-      hcal_ymean = -0.460;
-      hcal_ysig = 0.155;
-
-      pdiffcut = 0.2;
-    }
-    
-    hcal_xcut = 3.5 * hcal_xsig;
-    hcal_ycut = 3.5 * hcal_ysig;
-    // hcal_xcut = 100;
+    hcal_xcut = 3. * hcal_xsig;
+    hcal_ycut = 3. * hcal_ysig;
+    //hcal_xcut = 100;
     //hcal_ycut = 100;
     
     if( ApplyElec ) { 
