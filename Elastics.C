@@ -24,7 +24,7 @@
 using namespace std;
 
 // options
-const Bool_t   ApplyFidu  = false;
+const Bool_t   ApplyFidu  = true;
 const Bool_t   ApplyElec  = true;
 const Bool_t   ApplyElas  = false;
 const Bool_t   ApplyPion  = false;
@@ -45,7 +45,7 @@ double finter(double* x, double* par){
   return fabs(f1->EvalPar(x,par) - f2->EvalPar(x,par));
 }
 
-void Elastics(const Int_t kin_no = 11) { 
+void Elastics(const Int_t kin_no = 14) { 
 
   //-----------------------------------------------------------------------------------------------------------------------------
 
@@ -111,8 +111,9 @@ void Elastics(const Int_t kin_no = 11) {
 
   }  
   else if( kin_no == 7) { //SBS-7
-    // C->Add("$OUT_DIR/e1209019_fullreplay_11994_stream0_seg0_99.root");
-    C->Add("$OUT_DIR/e1209019_fullreplay_11994_stream0_seg0_99*.root");
+    //C->Add("$OUT_DIR/LH2/e1209019_fullreplay_11994_stream0_seg0_99.root");
+    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_11994_stream0_seg0_99*.root");
+    //C->Add("$OUT_DIR/LH2/gmn_replayed_11994*.root");
     
     Eb      = 7.906;   
     th_bb   = 40.0;   
@@ -122,31 +123,30 @@ void Elastics(const Int_t kin_no = 11) {
     pcent   = 2.670;  
     pres    = 0.02;   
     
-    runtime = 87. * (3.975 / 10.) * 60.;   
+    runtime = 87. * (3.975 / 10.) * 60.;
+    //runtime = 87. * 60.;   
     avI = 8;
       
-    pdiff_off = -0.206;
+    pdiff_off = 0.23;
 
     sh_min  = 0.60;
     sh_max  = 0.95;
     ps_min  = 0.10;
       
     hcal_xmean = -1.0;
-    hcal_xsig = 0.25;
+    hcal_xsig = 0.1;
     hcal_ymean = -0.2;
-    hcal_ysig = 0.25;
+    hcal_ysig = 0.1;
       
     pdiffcut = 0.05;
 
-    W_min = 0.0;
-    W_max = 4.0;
-    W_minc = 0.0;
-    W_maxc = 4.0;
+    //W_minc = 0.0;
+    //W_maxc = 4.0;
   }
-  else if( kin_no == 11) { //need full LH2 run + calibrated
-    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_12313*.root");
-    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_12320*.root");
-    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_12345*.root");
+  else if( kin_no == 11) { //SBS-11
+    C->Add("$OUT_DIR/LH2/*12313*.root");
+    C->Add("$OUT_DIR/LH2/*12320*.root");
+    C->Add("$OUT_DIR/LH2/*12345*.root");
 
     Eb      = 9.91;   
     th_bb   = 42.0; 
@@ -155,10 +155,9 @@ void Elastics(const Int_t kin_no = 11) {
 
     pcent   = 2.670;  
     pres    = 0.02;   
-
-    //runtime = 3569+4443+5664;   
-    //avI     = (11.98*3.6+8.4*4.4+11.6*5.7)/(3.6+4.4+5.7);
-    //avI     = avI/1.5;
+    
+    runtime = (59. + 74. + 95.) * 60.;
+    avI     = 15.;
     
     pdiff_off = 0.23;
 
@@ -166,17 +165,17 @@ void Elastics(const Int_t kin_no = 11) {
     sh_max  = 1.05;
     ps_min  = 0.07;
 
-    hcal_xmean = -0.64;
-    hcal_xsig = 0.077;
-    hcal_ymean = -0.45;
-    hcal_ysig = 0.15;
+    hcal_xmean = -1.0;
+    hcal_xsig = 0.1;
+    hcal_ymean = -0.2;
+    hcal_ysig = 0.1;
      
     pdiffcut = 0.1;
   }
-  else if( kin_no == 14) {
-    C->Add("$OUT_DIR/LH2/e1209019_fullreplay12313*.root");
-    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_12320*.root");
-    C->Add("$OUT_DIR/LH2/e1209019_fullreplay_12345*.root");
+  else if( kin_no == 14) { //SBS-14
+    C->Add("$OUT_DIR/LH2/gmn_replayed_13241*.root");
+    C->Add("$OUT_DIR/LH2/gmn_replayed_13242*.root");
+    C->Add("$OUT_DIR/LH2/gmn_replayed_13243*.root");
 
     Eb      = 5.9648;   
     th_bb   = 46.5; 
@@ -185,9 +184,10 @@ void Elastics(const Int_t kin_no = 11) {
     
     pcent   = 2.0;  
     pres    = 0.02;   
-   
-    runtime = 3569+4443+5664;
-    avI     = (11.98*3.6+8.4*4.4+11.6*5.7)/(3.6+4.4+5.7);
+    
+    // runtime = (25. + 28.) * 60.;
+    runtime = (32. + 25. + 28.) * 60.;
+    avI = 9.6;
     
     pdiff_off = 0.23;
 
@@ -195,14 +195,14 @@ void Elastics(const Int_t kin_no = 11) {
     sh_max  = 1.05;
     ps_min  = 0.07;
     
-    hcal_xmean = -0.676;
-    hcal_xsig = 0.113;
-    hcal_ymean = -0.171;
-    hcal_ysig = 0.155;
+    hcal_xmean = -0.75;
+    hcal_xsig = 0.125;
+    hcal_ymean = -0.4;
+    hcal_ysig = 0.125;
     
     pdiffcut = 0.1;
   }
-  else if( kin_no == 8) {
+  else if( kin_no == 8) { //SBS-8
     //production
     //C->Add("$OUT_DIR/LH2/e1209019_fullreplay_13486_stream0_seg8*.root");
     C->Add("$OUT_DIR/LH2/e1209019_fullreplay_13486*.root"); 
@@ -234,8 +234,7 @@ void Elastics(const Int_t kin_no = 11) {
     
     pdiffcut = 0.1;
    }
-  else if( kin_no == 9) {
-    //production
+  else if( kin_no == 9) { //SBS-9
     //C->Add("$OUT_DIR/LH2/e1209019_fullreplay_13683_stream0_seg8*.root");
     C->Add("$OUT_DIR/LH2/e1209019_fullreplay_13683*.root"); 
     C->Add("$OUT_DIR/LH2/e1209019_fullreplay_13696*.root"); 
@@ -265,6 +264,7 @@ void Elastics(const Int_t kin_no = 11) {
     
     pdiffcut = 0.2;
   }
+  
   GMnTree* T = new GMnTree(C);
   Long64_t nentries = C->GetEntries();
   cout << "Processing " << nentries << endl;
@@ -1201,13 +1201,18 @@ void Elastics(const Int_t kin_no = 11) {
 
       Float_t binwidth = hkin_pdiffc->GetXaxis()->GetBinWidth(1); 
       
+      //this method works when the peak is clear and higher than the bg
       int maxbin = hkin_pdiffc->GetMaximumBin();
-
       float a = hkin_pdiffc->GetMaximum();
       float b = hkin_pdiffc->GetBinCenter(maxbin);
-   
+
+      //need this method when the peak is less clear (high Q2 kinematics)
+      //float b = 0;
+      //float maxbin = hkin_pdiffc->FindBin(0);
+      //float a = hkin_pdiffc->GetBinContent(maxbin);
+      
       float pmean    = b;
-      float pwidth   = 0.06;
+      float pwidth   = 0.05;
 
       float pmin   = pmean - 3*pwidth;    // peak minimum 
       float pmax   = pmean + 3*pwidth;    // peak maximum 
