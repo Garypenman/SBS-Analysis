@@ -24,7 +24,7 @@
 using namespace std;
 
 // options
-const Bool_t   ApplyFidu  = false;
+const Bool_t   ApplyFidu  = true;
 const Bool_t   ApplyElec  = true;
 const Bool_t   ApplyElas  = false;
 const Bool_t   ApplyPion  = false;
@@ -39,6 +39,12 @@ const Bool_t   PlotOptics = false;
 const Bool_t   PlotDiff   = false;
 const Bool_t   PlotfADC   = false;
 
+TF1 *f1, *f2;
+
+double finter(double* x, double* par){
+  return fabs(f1->EvalPar(x,par) - f2->EvalPar(x,par));
+}
+
 void Quasielastics(const Int_t kin_no = 8) { 
 
   //-----------------------------------------------------------------------------------------------------------------------------
@@ -47,75 +53,113 @@ void Quasielastics(const Int_t kin_no = 8) {
 
   Double_t Eb, th_sbs, th_bb, pcent, pres, runtime, avI;
   Double_t pdiff_off, hcal_dist;
-
-  //Defaults
-  Double_t sh_min  = 0.75;
-  Double_t sh_max  = 1.05;
-  Double_t sh_e    = 0.70;
-  Double_t ps_min  = 0.085; 
-  Double_t W_min   = 0.0;
-  Double_t W_max   = 4.0;
-  Double_t W_minc = 0.25;
-  Double_t W_maxc = 1.5;
   
-  if( kin_no == 4) { 
-    C->Add("$OUT_DIR/LD2/*11547*.root");
-    C->Add("$OUT_DIR/LD2/*11548*.root");
+  //Elastic Cuts Based on Kinematic Setting
+  Double_t sh_min, sh_max, sh_e, ps_min, W_min, W_max, W_minc, W_maxc;
+  Double_t hcal_ysig, hcal_xsig, hcal_ymean, hcal_xmean, hcal_xcut, hcal_ycut, pdiffcut;
+
+  sh_e = 0.70;
+  
+  W_min   = 0.0; 
+  W_max   = 4.0; 
+  W_minc = 0.25;
+  W_maxc = 1.5;
+  
+  if( kin_no == 4) { //SBS-4
+    //Need full LD2 Runs
+    //C->Add("");
     
     Eb        = 3.7278;  
     th_bb     = 36.0; 
     th_sbs    = 31.9; 
-    hcal_dist = 8.5;
+    hcal_dist = 11.0;
     
     pcent     = 2.122;  
     pres      = 0.02;   
     
-    runtime   = (61. + 113.) * 60.;    
+    runtime   = 0 * 60.;    
     avI       = 3.5;     
 
-    pdiff_off = 0.038;
-  }  
-  else if( kin_no == 7) { //need full LD2 run
-    C->Add("$OUT_DIR/LD2/e1209019_fullreplay_11994*.root");
+    pdiff_off = 0.234;
 
+    sh_min  = 0.55;
+    sh_max  = 0.85;
+    ps_min  = 0.1;
+
+    hcal_xmean = -0.40;
+    hcal_xsig = 0.1;
+    hcal_ymean = -0.70;
+    hcal_ysig = 0.1;
+      
+    pdiffcut = 0.2;
+
+    W_minc = 0.0;
+    W_maxc = 4.0;
+
+  }  
+  else if( kin_no == 7) { //SBS-7
+    //Need full LD2 Runs
+    //C->Add("");
+    
     Eb      = 7.906;   
     th_bb   = 40.0;   
     th_sbs  = 16.1; 
-    hcal_dist = 8.5;
+    hcal_dist = 14.0;
     
     pcent   = 2.670;  
     pres    = 0.02;   
     
-    runtime = 5185+5667+4310;   
-    avI     = (5.3*5.2+5.1*5.7+6.0*4.3)/(5.2+5.7+4.3);  
-    
-    pdiff_off = 0.16;
+    runtime = 0. * 60.;
+    avI = 0.;
+      
+    pdiff_off = 0.23;
 
+    sh_min  = 0.60;
+    sh_max  = 0.95;
+    ps_min  = 0.10;
+      
+    hcal_xmean = -1.0;
+    hcal_xsig = 0.1;
+    hcal_ymean = -0.2;
+    hcal_ysig = 0.1;
+      
+    pdiffcut = 0.05;
+
+    //W_minc = 0.0;
+    //W_maxc = 4.0;
   }
-  else if( kin_no == 11) { //need full LD2 run
-    C->Add("$OUT_DIR/LD2/e1209019_fullreplay_12313*.root");
-    C->Add("$OUT_DIR/LD2/e1209019_fullreplay_12320*.root");
-    C->Add("$OUT_DIR/LD2/e1209019_fullreplay_12345*.root");
+  else if( kin_no == 11) { //SBS-11
+    //Need full LD2 Runs
+    //C->Add("");
 
     Eb      = 9.91;   
     th_bb   = 42.0; 
     th_sbs  = 13.3; 
-    hcal_dist = 8.5;
+    hcal_dist = 14.5;
 
     pcent   = 2.670;  
     pres    = 0.02;   
-
-    runtime = 3569+4443+5664;   
-    avI     = (11.98*3.6+8.4*4.4+11.6*5.7)/(3.6+4.4+5.7);
-    avI     = avI/1.5;
+    
+    runtime = 0. * 60.;
+    avI     = 0.;
     
     pdiff_off = 0.23;
-  }
-  else if( kin_no == 14) { //need full LD2 run
-    C->Add("$OUT_DIR/LD2/e1209019_fullreplay12313*.root");
-    C->Add("$OUT_DIR/LD2/e1209019_fullreplay_12320*.root");
-    C->Add("$OUT_DIR/LD2/e1209019_fullreplay_12345*.root");
 
+    sh_min  = 0.75;
+    sh_max  = 1.05;
+    ps_min  = 0.07;
+
+    hcal_xmean = -1.0;
+    hcal_xsig = 0.1;
+    hcal_ymean = -0.2;
+    hcal_ysig = 0.1;
+     
+    pdiffcut = 0.1;
+  }
+  else if( kin_no == 14) { //SBS-14
+    //Need full LD2 Runs
+    //C->Add("");
+    
     Eb      = 5.9648;   
     th_bb   = 46.5; 
     th_sbs  = 17.3; 
@@ -123,20 +167,26 @@ void Quasielastics(const Int_t kin_no = 8) {
     
     pcent   = 2.0;  
     pres    = 0.02;   
-   
-    runtime = 3569+4443+5664;
-    avI     = (11.98*3.6+8.4*4.4+11.6*5.7)/(3.6+4.4+5.7);
-    avI     = avI/1.5;
-
-    pdiff_off = 0.23;
-  }
-  else if( kin_no == 8) {
-    //production
-    C->Add("$OUT_DIR/LD2/e1209019_fullreplay_13545_stream0_seg8*.root");
-    //C->Add("$OUT_DIR/LD2/e1209019_fullreplay_13545*.root"); 
     
-    //sbs magnet off
-    //C->Add("$OUT_DIR/LD2/e1209019_fullreplay_13461*.root");
+    runtime = 0. * 60.;
+    avI = 0.;
+    
+    pdiff_off = 0.23;
+
+    sh_min  = 0.75;
+    sh_max  = 1.05;
+    ps_min  = 0.07;
+    
+    hcal_xmean = -0.75;
+    hcal_xsig = 0.125;
+    hcal_ymean = -0.4;
+    hcal_ysig = 0.125;
+    
+    pdiffcut = 0.1;
+  }
+  else if( kin_no == 8) { //SBS-8
+    //C->Add("$OUT_DIR/LD2/e1209019_fullreplay_13545_stream0_seg8*.root");
+    C->Add("$OUT_DIR/LD2/e1209019_fullreplay_13545*.root"); 
     
     Eb      = 6.0;   
     th_bb   = 26.5; 
@@ -146,15 +196,26 @@ void Quasielastics(const Int_t kin_no = 8) {
     pcent   = 3.59;  
     pres    = 0.02;   
     
-    runtime = 63. * (52/146) * 60.;
+    runtime = 63. * (52./146.) * 60.;
     avI     = 5.0;
     
     pdiff_off = -0.03;
-   }
-  else if( kin_no == 9) { //need full LD2 run
-    //production
-    //C->Add("$OUT_DIR/LD2/e1209019_fullreplay_13683*.root");
+
+    sh_min  = 0.70;
+    sh_max  = 1.05;
+    ps_min  = 0.07;
       
+    hcal_xmean = -0.676;
+    hcal_xsig = 0.113;
+    hcal_ymean = -0.171;
+    hcal_ysig = 0.155;
+    
+    pdiffcut = 0.1;
+   }
+  else if( kin_no == 9) { //SBS-9
+    //Need full LD2 Runs
+    //C->Add("");
+    
     Eb      = 4.014;   
     th_bb   = 49.0; 
     th_sbs  = 22.5; 
@@ -163,11 +224,23 @@ void Quasielastics(const Int_t kin_no = 8) {
     pcent   = 1.63;  
     pres    = 0.02;   
     
-    runtime = (59.*(76./163.) + 75.*(100./186.) + 48.*(100./142.)) * 60.; 
-    avI     = 15.;
+    runtime = 0. * 60.; 
+    avI     = 0.;
     
     pdiff_off = 0.29;
+
+    sh_min  = 0.70;
+    sh_max  = 0.95;
+    ps_min  = 0.12;
+    
+    hcal_xmean = -0.634;
+    hcal_xsig = 0.094;
+    hcal_ymean = -0.460;
+    hcal_ysig = 0.155;
+    
+    pdiffcut = 0.2;
   }
+  
   GMnTree* T = new GMnTree(C);
   Long64_t nentries = C->GetEntries();
   cout << "Processing " << nentries << endl;
@@ -244,7 +317,7 @@ void Quasielastics(const Int_t kin_no = 8) {
   TH1D* hkin_pdiff    = new TH1D("hkin_pdiff","",50,-0.5,0.5);
   TH1D* hkin_W        = new TH1D("hkin_W","",50,W_min,W_max);
   TH2D* hkin2d_thp    = new TH2D("hkin2d_thp","",100, th_bb-6,th_bb+6.,100,0.25*pcent,1.25*pcent);
-
+  
   TH1D* hkin_pc       = new TH1D("hkin_pc","",100,0.25*pcent,1.25*pcent);
   TH1D* hkin_thc      = new TH1D("hkin_thc","",100,-0.3,0.3);
   TH1D* hkin_phc      = new TH1D("hkin_phc","",100,-0.1,0.1);
@@ -298,6 +371,7 @@ void Quasielastics(const Int_t kin_no = 8) {
   TH1D* hhcal_deltayc = new TH1D("hhcal_deltayc","",100,-2.,2.);
   TH2D* hhcal_deltaxy = new TH2D("hhcal_deltaxy","",50,-2.,2.,50,-2.5,2.5);
   TH2D* hhcal_deltaxyc = new TH2D("hhcal_deltaxyc","",50,-2.5,2.5,50,-2.5,2.5);
+  TH2D* hkin_deltaxyc = new TH2D("hkin_deltaxyc","",50,-2.5,2.5,50,-2.5,2.5);
   
   TH1D* hbbcal_pxdiff = new TH1D("hbbcal_pxdiff","",100,-0.5,0.5);
   TH1D* hbbcal_pydiff = new TH1D("hbbcal_pydiff","",100,-0.5,0.5);
@@ -480,112 +554,49 @@ void Quasielastics(const Int_t kin_no = 8) {
     hhcal_deltay->Fill(delta_y);
     hhcal_deltaxy->Fill(delta_y,delta_x);
     
-    //Elastic Cuts Based on Kinematic Setting
-    Double_t hcal_ysig, hcal_xsig, hcal_ymean, hcal_xmean, hcal_xcut, hcal_ycut, pdiffcut;
-    if (kin_no == 4){//not yet calibrated
-      sh_min  = 0.75;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-
-      hcal_xmean = -0.64;
-      hcal_xsig = 0.077;
-      hcal_ymean = -0.45;
-      hcal_ysig = 0.15;
-      
-      pdiffcut = 0.1;
-    }
-    else if (kin_no == 7){//not yet calibrated
-      sh_min  = 0.75;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-      
-      hcal_xmean = -0.64;
-      hcal_xsig = 0.077;
-      hcal_ymean = -0.45;
-      hcal_ysig = 0.15;
-      
-      pdiffcut = 0.1;
-    }
-    else if (kin_no == 11){//not yet calibrated
-      sh_min  = 0.75;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-
-      hcal_xmean = -0.64;
-      hcal_xsig = 0.077;
-      hcal_ymean = -0.45;
-      hcal_ysig = 0.15;
-     
-      pdiffcut = 0.1;
-    }
-    else if(kin_no ==14){//not yet calibrated
-      sh_min  = 0.75;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-      
-      hcal_xmean = -0.676;
-      hcal_xsig = 0.113;
-      hcal_ymean = -0.171;
-      hcal_ysig = 0.155;
-      
-      pdiffcut = 0.1;
-    }
-    else if (kin_no == 8){//calibrated
-      sh_min  = 0.70;
-      sh_max  = 1.05;
-      ps_min  = 0.07;
-      
-      hcal_xmean = -0.676;
-      hcal_xsig = 0.113;
-      hcal_ymean = -0.171;
-      hcal_ysig = 0.155;
-      
-      pdiffcut = 0.2;
-    }
-    else if (kin_no == 9 ){//calibrated
-      sh_min  = 0.70;
-      sh_max  = 0.95;
-      ps_min  = 0.12;
- 
-      hcal_xmean = -0.634;
-      hcal_xsig = 0.094;
-      hcal_ymean = -0.460;
-      hcal_ysig = 0.155;
-
-      pdiffcut = 0.2;
-    }
-    
     hcal_xcut = 3. * hcal_xsig;
     hcal_ycut = 3. * hcal_ysig;
+    //hcal_xcut = 100;
+    //hcal_ycut = 100;
     
     if( ApplyElec ) { 
       if( T->bb_ps_e/T->bb_tr_p[0] < ps_min ) continue;
       if( (T->bb_ps_e/T->bb_tr_p[0] + sh_e*T->bb_sh_e/T->bb_tr_p[0])< sh_min ) continue;
       if( (T->bb_ps_e/T->bb_tr_p[0] + sh_e*T->bb_sh_e/T->bb_tr_p[0])> sh_max) continue;
       if( T->bb_tr_p[0] < 0.25*pcent ) continue;
-      if( T->e_kine_W2 < W_minc ) continue; 
-      if( T->e_kine_W2 > W_maxc ) continue;   
+      if( T->e_kine_W2 < W_min ) continue; 
+      if( T->e_kine_W2 > W_max ) continue;   
+
     }
     else if (ApplyPion) { 
       if( T->bb_ps_e/T->bb_tr_p[0] > ps_min ) continue;
       if( (T->bb_ps_e/T->bb_tr_p[0] + sh_e*T->bb_sh_e/T->bb_tr_p[0]) > sh_min ) continue;
     }
     
-    //if( fabs(delta_x - hcal_xmean) > hcal_xcut) continue;
-    if( fabs(delta_y - hcal_ymean) > hcal_ycut ) continue;
-    
-    hkin_pc->Fill(pc);
-    hkin_xc->Fill(T->bb_tr_x[0]);
-    hkin_yc->Fill(T->bb_tr_y[0]);
-    hkin_thc->Fill(T->bb_tr_tg_th[0]);
-    hkin_phc->Fill(T->bb_tr_tg_ph[0]);
-    hkin_ytc->Fill(T->bb_tr_tg_y[0]);
-    hkin_pdiffc->Fill( pdiff );
-    hkin_Wc->Fill(T->e_kine_W2);
-    hkin2d_thpc->Fill(57.3*th, pc);
-    
+    if( fabs(delta_x - hcal_xmean) < hcal_xcut){
+      if( fabs(delta_y - hcal_ymean) < hcal_ycut ){
+	
+	hkin_pdiffc->Fill( pdiff );
+	
+	//if( T->e_kine_W2 < W_minc ) continue; 
+	//if( T->e_kine_W2 > W_maxc ) continue;   
+	hkin_pc->Fill(pc);
+	hkin_xc->Fill(T->bb_tr_x[0]);
+	hkin_yc->Fill(T->bb_tr_y[0]);
+	hkin_thc->Fill(T->bb_tr_tg_th[0]);
+	hkin_phc->Fill(T->bb_tr_tg_ph[0]);
+	hkin_ytc->Fill(T->bb_tr_tg_y[0]);
+	hkin2d_thpc->Fill(57.3*th, pc);
+	hkin_Wc->Fill(T->e_kine_W2);
+	hkin_deltaxyc->Fill(delta_y,delta_x);
+	
+      }	
+    }
+
+    //if( T->e_kine_W2 < W_minc ) continue; 
+    //if( T->e_kine_W2 > W_maxc ) continue;   
     if( fabs(pdiff) < pdiffcut ) {
-    //if (true) {
+    //if( true ){
       hhcal_xc->Fill(hcal_x);
       hhcal_yc->Fill(hcal_y);
       hhcal_xyc->Fill(hcal_y,hcal_x);
@@ -626,60 +637,50 @@ void Quasielastics(const Int_t kin_no = 8) {
 	hopt_yt_pc->Fill(T->bb_tr_tg_y[0] , p);
       }
     }
-    
-    //-----------------------------------------------------------------------------------------------------------------------------
-    // GEM-Hodoscope track matching
-    //-----------------------------------------------------------------------------------------------------------------------------
-    if ( PlotHodo ){
-      hth_tx->Fill( T->bb_tr_x[0] + hodo_dist * T->bb_tr_th[0] ); // track x at hodo (dispersive)
-      hth_ty->Fill( T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0] ); // track y at hodo (non-dispersive)
-    
-      hth2d_txy->Fill( T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0], T->bb_tr_x[0] + hodo_dist * T->bb_tr_th[0] );
-    
-      hth_tmult->Fill(T->bb_tr_n-1); // BB track "id" 
-    
-      Bool_t Singlebarhit = kFALSE;
-      if( T->bb_hodotdc_clus_size[0] == 1 && T->bb_hodotdc_clus_trackindex[0] == 0 )
-	Singlebarhit = kTRUE;
-    
-      if( Apply1Bar && !Singlebarhit ) continue;
-    
+      
       //-----------------------------------------------------------------------------------------------------------------------------
+      // GEM-Hodoscope track matching
+      //-----------------------------------------------------------------------------------------------------------------------------
+      if ( PlotHodo ){
+	hth_tx->Fill( T->bb_tr_x[0] + hodo_dist * T->bb_tr_th[0] ); // track x at hodo (dispersive)
+	hth_ty->Fill( T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0] ); // track y at hodo (non-dispersive)
+    
+	hth2d_txy->Fill( T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0], T->bb_tr_x[0] + hodo_dist * T->bb_tr_th[0] );
+    
+	hth_tmult->Fill(T->bb_tr_n-1); // BB track "id" 
+    
+	Bool_t Singlebarhit = kFALSE;
+	if( T->bb_hodotdc_clus_size[0] == 1 && T->bb_hodotdc_clus_trackindex[0] == 0 )
+	  Singlebarhit = kTRUE;
+	
+	if( Apply1Bar && !Singlebarhit ) continue;
+    
+	//-----------------------------------------------------------------------------------------------------------------------------
+	
+	if( T->bb_hodotdc_clus_trackindex[0] == 0 ) {  // only hodo clusters that match bb track id = 0 (I guess redundndat for single track events)	
+      
+	  hth_csize->Fill( T->bb_hodotdc_clus_size[0] );
+	  hth_hmult->Fill( T->bb_hodotdc_clus_trackindex[0] ); // track id that is matched
+      
+	  hth_xmean->Fill( T->bb_hodotdc_clus_xmean[0] ); // mean x position of hodo cluster
+	  hth_xdiff->Fill( (T->bb_hodotdc_clus_xmean[0] - (T->bb_tr_x[0] + hodo_dist * T->bb_tr_th[0])) );
+      
+	  hth_ymean->Fill( T->bb_hodotdc_clus_ymean[0] ); // mean y position of hodo cluster
+	  hth_ydiff->Fill( (T->bb_hodotdc_clus_ymean[0] - (T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0])) );
+      
+	  Int_t maxbar = (Int_t)T->bb_hodotdc_clus_id[0]; 
+      
+	  hth2d_xdiff->Fill( (T->bb_hodotdc_clus_xmean[0] - (T->bb_tr_x[0] + hodo_dist * T->bb_tr_th[0])), maxbar );
+	  hth2d_ydiff->Fill( (T->bb_hodotdc_clus_ymean[0] - (T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0])), maxbar );
+	  hth2d_tmean->Fill( T->bb_hodotdc_clus_tmean[0], maxbar );
 
-      if( T->bb_hodotdc_clus_trackindex[0] == 0 ) {  // only hodo clusters that match bb track id = 0 (I guess redundndat for single track events)	
+	  hth2d_xymean->Fill( T->bb_hodotdc_clus_ymean[0], T->bb_hodotdc_clus_xmean[0] );
       
-	hth_csize->Fill( T->bb_hodotdc_clus_size[0] );
-	hth_hmult->Fill( T->bb_hodotdc_clus_trackindex[0] ); // track id that is matched
-      
-	hth_xmean->Fill( T->bb_hodotdc_clus_xmean[0] ); // mean x position of hodo cluster
-	hth_xdiff->Fill( (T->bb_hodotdc_clus_xmean[0] - (T->bb_tr_x[0] + hodo_dist * T->bb_tr_th[0])) );
-      
-	hth_ymean->Fill( T->bb_hodotdc_clus_ymean[0] ); // mean y position of hodo cluster
-	hth_ydiff->Fill( (T->bb_hodotdc_clus_ymean[0] - (T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0])) );
-      
-	Int_t maxbar = (Int_t)T->bb_hodotdc_clus_id[0]; 
-      
-	hth2d_xdiff->Fill( (T->bb_hodotdc_clus_xmean[0] - (T->bb_tr_x[0] + hodo_dist * T->bb_tr_th[0])), maxbar );
-	hth2d_ydiff->Fill( (T->bb_hodotdc_clus_ymean[0] - (T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0])), maxbar );
-	hth2d_tmean->Fill( T->bb_hodotdc_clus_tmean[0], maxbar );
-
-	hth2d_xymean->Fill( T->bb_hodotdc_clus_ymean[0], T->bb_hodotdc_clus_xmean[0] );
-      
-	hth2d_Diff->Fill((T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0]), 0.5*T->bb_hodotdc_clus_tdiff[0] ); // note th 1/2
-      
-	hDiff[maxbar]->Fill((T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0]), 0.5*T->bb_hodotdc_clus_tdiff[0] ); // note th 1/2
-      
-	//       if( maxbar >= 32 && maxbar < 64 ) {
-	// 	for(int i = 0 ; i < T->Ndata_bb_hodoadc_bar_adc_L_ap ; i++ ) 
-	// 	  if( T->bb_hodoadc_bar_adc_id[i] == maxbar - 32 ) { 
-	// 	    hth2d_fadcl2->Fill(T->bb_hodoadc_bar_adc_L_ap[i], T->bb_hodoadc_bar_adc_id[i]);
-	// 	    hth2d_fadcr2->Fill(T->bb_hodoadc_bar_adc_R_ap[i], T->bb_hodoadc_bar_adc_id[i]);
-	// 	    hth_fadcl2->Fill(T->bb_hodoadc_bar_adc_L_ap[i]);
-	// 	    hth_fadcr2->Fill(T->bb_hodoadc_bar_adc_R_ap[i]);
-	// 	  }
-	//       }
+	  hth2d_Diff->Fill((T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0]), 0.5*T->bb_hodotdc_clus_tdiff[0] ); // note th 1/2
+	  
+	  hDiff[maxbar]->Fill((T->bb_tr_y[0] + hodo_dist * T->bb_tr_ph[0]), 0.5*T->bb_hodotdc_clus_tdiff[0] ); // note th 1/2
+	}
       }
-    }
   }
   
   //-----------------------------------------------------------------------------------------------------------------------------
@@ -687,7 +688,8 @@ void Quasielastics(const Int_t kin_no = 8) {
   //-----------------------------------------------------------------------------------------------------------------------------
 
   TLatex* tex;
-
+  TLatex* tex2;
+  
   if( PlotHodo ) {
     TCanvas* c1 = new TCanvas("c1","",1200,800);
     c1->Divide(4,2);
@@ -741,7 +743,7 @@ void Quasielastics(const Int_t kin_no = 8) {
     hth_csize->SetLineColor(2);
     hth_csize->GetXaxis()->SetTitle("BBHodo Cluster Size");
     
-    //cout << "Mean cluster size " << hth_csize->GetMean() << endl;
+    cout << "Mean cluster size " << hth_csize->GetMean() << endl;
     
     tex = new TLatex( 0.25, 0.8, Form("Mean Size = %3.2f bars", hth_csize->GetMean()) );
     tex->SetNDC(1);
@@ -1154,12 +1156,12 @@ void Quasielastics(const Int_t kin_no = 8) {
     hkin2d_thpc->GetXaxis()->SetTitle("#theta_{bblab} [degrees]");
     hkin2d_thpc->GetYaxis()->SetTitle("p_{bbtrack} [GeV/c]");
 
-    //cout << hkin2d_thpc->GetMean(1) << "\t" << hkin2d_thpc->GetMean(2) << endl;
+    cout << hkin2d_thpc->GetMean(1) << "\t" << hkin2d_thpc->GetMean(2) << endl;
     
     c5->cd(6);
-    hhcal_deltaxyc->Draw("colz");
-    hhcal_deltaxyc->GetXaxis()->SetTitle("Hcal (Pred - Meas) y[m]");
-    hhcal_deltaxyc->GetYaxis()->SetTitle("Hcal (Pred - Meas) x[m]");
+    hkin_deltaxyc->Draw("colz");
+    hkin_deltaxyc->GetXaxis()->SetTitle("Hcal (Pred - Meas) y[m]");
+    hkin_deltaxyc->GetYaxis()->SetTitle("Hcal (Pred - Meas) x[m]");
     
     c5->cd(7);
     hkin_Wc->Draw();
@@ -1176,7 +1178,17 @@ void Quasielastics(const Int_t kin_no = 8) {
 
       Float_t binwidth = hkin_pdiffc->GetXaxis()->GetBinWidth(1); 
       
-      float pmean    = 0.0;
+      //this method works when the peak is clear and higher than the bg
+      int maxbin = hkin_pdiffc->GetMaximumBin();
+      float a = hkin_pdiffc->GetMaximum();
+      float b = hkin_pdiffc->GetBinCenter(maxbin);
+
+      //need this method when the peak is less clear (high Q2 kinematics)
+      //float b = 0;
+      //float maxbin = hkin_pdiffc->FindBin(0);
+      //float a = hkin_pdiffc->GetBinContent(maxbin);
+      
+      float pmean    = b;
       float pwidth   = 0.05;
 
       float pmin   = pmean - 3*pwidth;    // peak minimum 
@@ -1196,40 +1208,36 @@ void Quasielastics(const Int_t kin_no = 8) {
 	hkin_pdiffc->SetBinError( i, 0 ); 
       } 
       
-      TF1* back = new TF1("back", "pol1(0)", cmin, cmax);     // 1-D root function 
-      //TF1* back = new TF1("back", "pol3(0)", cmin, cmax);     // 1-D root function 
+      TF1* bg = new TF1("back", "pol1(0)", cmin, cmax);     // 1-D root function 
       hkin_pdiffc->Fit("back","Q","",cmin,cmax); 
       
-      float par0 = back->GetParameter(0); 
-      float par1 = back->GetParameter(1); 
-      //float par2 = back->GetParameter(2); 
-      //float par3 = back->GetParameter(3); 
+      float abg = bg->Eval(b);
+      float par0 = bg->GetParameter(0); 
+      float par1 = bg->GetParameter(1); 
+      //float par2 = bg->GetParameter(2); 
+      //float par3 = bg->GetParameter(3); 
       
-      back->SetLineWidth(2); 
-      back->SetLineColor(4); 
+      bg->SetLineWidth(2); 
+      bg->SetLineColor(4); 
       
       for( int i = pbmin; i < pbmax; i++) { 
 	hkin_pdiffc->SetBinContent( i, pbins[i - pbmin] ); 
 	hkin_pdiffc->SetBinError( i, perr[i - pbmin] ); 
       } 
       
-      //TF1* peakbg = new TF1("peakbg", "pol3(0)+gaus(4)", cmin, cmax); 
       TF1* peakbg = new TF1("peakbg", "pol1(0)+gaus(4)", cmin, cmax); 
       peakbg->FixParameter( 0, par0   ); 
       peakbg->FixParameter( 1, par1   ); 
       //peakbg->FixParameter( 2, par2   ); 
-      // peakbg->FixParameter( 3, par3   ); 
-      peakbg->SetParameter( 5, pmean  ); 
+      //peakbg->FixParameter( 3, par3   ); 
+      peakbg->FixParameter( 4, a-abg);
+      peakbg->FixParameter( 5, b); 
       peakbg->SetParameter( 6, pwidth );    
       peakbg->SetLineWidth(2); 
       peakbg->SetLineColor(1); 
       hkin_pdiffc->Fit("peakbg","Q","",cmin,cmax); 
       peakbg->Draw("same"); 
-      back->Draw("same"); 
-      
-      float par4 = peakbg->GetParameter(4); 
-      float par5 = peakbg->GetParameter(5); 
-      float par6 = peakbg->GetParameter(6); 
+      bg->Draw("same"); 
       
       float chi2              = peakbg->GetChisquare(); 
       float NDF               = peakbg->GetNDF(); 
@@ -1238,19 +1246,14 @@ void Quasielastics(const Int_t kin_no = 8) {
       float fitted_sigma      = peakbg->GetParameter(6); 
       float fitted_sigma_err  = peakbg->GetParError(6); 
       
-      TF1* peak = new TF1("peak", "gaus(0)", cmin, cmax); 
-      peak->FixParameter( 0, par4   ); 
-      peak->FixParameter( 1, par5   ); 
-      peak->FixParameter( 2, par6   ); 
-      
-      float integral     = peak->Integral( cmin, cmax )/binwidth; 
+      float integral     = (peakbg->Integral(cmin, cmax) - bg->Integral(cmin,cmax)) / binwidth; 
       float integral_err = TMath::Sqrt( integral ); 
       
-      //cout << integral << endl;
       if( kin_no == 4)
-	tex = new TLatex( 0.43, 0.9, Form("R_{quasielastic} = %3.1fk /uAh", (0.001*integral/(runtime*avI/3600))));
+	tex = new TLatex( 0.43, 0.9, Form("R_{elastic} = %3.1fk /uAh", (0.001*integral/(runtime*avI/3600))));
       else 
-	tex = new TLatex( 0.43, 0.9, Form("R_{quasielastic} = %3.1f /uAh", (integral/(runtime*avI/3600))));
+	tex = new TLatex( 0.43, 0.9, Form("R_{elastic} = %3.1f /uAh", (integral/(runtime*avI/3600))));
+     
       tex->SetNDC(1);
       tex->SetTextFont(42);
       tex->SetTextColor(1);
@@ -1269,7 +1272,7 @@ void Quasielastics(const Int_t kin_no = 8) {
     c5->Print("bbhodo_temp5.pdf");
     c5->Print("kinematics_3.pdf");
     //c5->Print("kinematics_aftercuts.C");
-    c5->Close();
+    //c5->Close();
   }
 
   //-----------------------------------------------------------------------------------------------------------------------------
@@ -1478,32 +1481,43 @@ void Quasielastics(const Int_t kin_no = 8) {
   
     
     TCanvas *c9 = new TCanvas("c9","",1200,800);
-    c9->cd();
+    c9->Divide(2,1);
+    c9->cd(1);
     hhcal_deltax->Draw("");
-    hhcal_deltax->GetXaxis()->SetTitle("HCal (Meas - Pred) y[m]");
+    hhcal_deltax->GetXaxis()->SetTitle("HCal (Meas - Pred) x[m]");
     hhcal_deltaxc->SetLineColor(2);
     hhcal_deltaxc->Draw("same");
+    
+    c9->cd(2);
+    hhcal_deltaxc->GetXaxis()->SetTitle("HCal (Meas - Pred) x[m]");
+    hhcal_deltaxc->SetLineColor(2);
+    hhcal_deltaxc->Draw("");
+    
 
+    
     //delta_x fit
-    Float_t binwidth = hhcal_deltaxc->GetXaxis()->GetBinWidth(1); 
-    
+    float binwidth = hhcal_deltaxc->GetXaxis()->GetBinWidth(1); 
+   
     //proton peak
-    int pmaxbin = hhcal_deltaxc->GetMaximumBin();
-    
+    int maxbin = hhcal_deltaxc->GetMaximumBin();
+
     float ap = hhcal_deltaxc->GetMaximum();
-    float bp = hhcal_deltaxc->GetBinCenter(pmaxbin);
+    float bp = hhcal_deltaxc->GetBinCenter(maxbin);
     
     float pmean    = bp;
     float pwidth   = 0.12;
-
-    float pmin   = pmean - 3*pwidth;  // peak minimum   
-    float pmax   = pmean + 3*pwidth; // peak maximum
     
-    float pcmin = -0.95;    // fit minimum 
-    float pcmax = 0.0;    // fit maximum 
+    float pmin   = pmean - 3*pwidth;    // peak minimum 
+    float pmax   = pmean + 3*pwidth;    // peak maximum 
+    
+    float cmin   = -1.15;    // fit minimum 
+    float cmax   = -0.15;    // fit maximum 
+    //float cmin = -2.5;
+    //float cmax = 2.5;
     
     int pbmin   = hhcal_deltaxc->FindBin( pmin ); 
     int pbmax   = hhcal_deltaxc->FindBin( pmax ); 
+    
     int pbrange = pbmax - pbmin; 
     float pbins[pbrange], perr[pbrange];
     
@@ -1534,7 +1548,6 @@ void Quasielastics(const Int_t kin_no = 8) {
     int nbrange = nbmax - nbmin; 
     float nbins[nbrange], nerr[nbrange];
     
-    cout << bn <<" " << nbmin << " " << nbmax << endl;
     for( int i = nbmin; i < nbmax; i++) { 
       nbins[i - nbmin] = hhcal_deltaxc->GetBinContent( i ); 
       nerr[i - nbmin]  = hhcal_deltaxc->GetBinError( i ); 
@@ -1543,49 +1556,73 @@ void Quasielastics(const Int_t kin_no = 8) {
     } 
     
     //fit background without the two peaks
-    TF1* gausbg = new TF1("gausbg","pol3(0)",-2.5,2.5); //this looked better than pol3
-    gausbg->SetLineColor(kBlue);
-    hhcal_deltaxc->Fit("gausbg","Q","",-2.5,2.5);
+    TF1* bg = new TF1("bg","gaus(0)",-2.5,2.5);
+    //TF1* bg = new TF1("bg","pol2(0)",-2.5,2.5);
+    bg->SetLineColor(kBlue);
+    hhcal_deltaxc->Fit("bg","Q","",-2.5,2.5);
     
-    /*
+    double par0 = bg->GetParameter(0);
+    double par1 = bg->GetParameter(1);
+    double par2 = bg->GetParameter(2);
+    //double par3 = bg->GetParameter(3);
+    
+    TFormula* bgform = bg->GetFormula();
+    double apbg = bgform->Eval(bp);
+    double anbg = bgform->Eval(bn);
+    
     //add back in the peaks
     for( int i = pbmin; i < pbmax; i++) { 
       hhcal_deltaxc->SetBinContent( i, pbins[i - pbmin] ); 
       hhcal_deltaxc->SetBinError( i, perr[i - pbmin] ); 
-    }
+    } 
     for( int i = nbmin; i < nbmax; i++) { 
       hhcal_deltaxc->SetBinContent( i, nbins[i - nbmin] ); 
       hhcal_deltaxc->SetBinError( i, nerr[i - nbmin] ); 
     }
-    */
     
-    //TF1* gauspeak = new TF1("gauspeak","pol1(0)+gaus(4)",cmin1,cmax1);
-    //gauspeak->SetLineColor(kRed);
+    TF1* ppeakbg = new TF1("ppeakbg","gaus(0)+gaus(4)",cmin,cmax);
+    TF1* npeakbg = new TF1("npeakbg","gaus(0)+gaus(4)",ncmin,ncmax);
+    ppeakbg->SetLineColor(kRed);
+    npeakbg->SetLineColor(kRed);
     
-    //gauspeak->FixParameter(0,par0);
-    //gauspeak->FixParameter(1,par1);
-    //gauspeak->FixParameter(2,par2);
-    //gauspeak->FixParameter(3,par3);
-    //gauspeak->FixParameter(5,pmean);
-    //gauspeak->FixParameter(6,pwidth);
+    ppeakbg->FixParameter(0,par0);
+    ppeakbg->FixParameter(1,par1);
+    ppeakbg->FixParameter(2,par2);
+    //ppeakbg->FixParameter(3,par3);
+    ppeakbg->FixParameter(4,ap-apbg);
+    ppeakbg->FixParameter(5,bp);
+    ppeakbg->SetParameter(6,pwidth);
     
-    //hhcal_deltaxc->Fit("gauspeak","Q","",cmin1,cmax1);
+    npeakbg->FixParameter(0,par0);
+    npeakbg->FixParameter(1,par1);
+    npeakbg->FixParameter(2,par2);
+    //ppeakbg->FixParameter(3,par3);
+    npeakbg->FixParameter(4,an-anbg);
+    npeakbg->FixParameter(5,bn);
+    npeakbg->SetParameter(6,nwidth);
     
-    gausbg->Draw("same");
-    //gauspeak->Draw("same");
+    hhcal_deltaxc->Fit("ppeakbg","Q","",cmin,cmax);
+    hhcal_deltaxc->Fit("npeakbg","Q","",ncmin,ncmax);
+    bg->Draw("same");
+    ppeakbg->Draw("same");
+    npeakbg->Draw("same");
+    
+    float pfitted_sigma      = ppeakbg->GetParameter(6); 
+    float pfitted_sigma_err  = ppeakbg->GetParError(6); 
+    
+    float nfitted_sigma      = npeakbg->GetParameter(6); 
+    float nfitted_sigma_err  = npeakbg->GetParError(6); 
+    
+    float pintegral = (ppeakbg->Integral(cmin,cmax) - bg->Integral(cmin,cmax)) / binwidth;
+    float nintegral = (npeakbg->Integral(ncmin,ncmax) - bg->Integral(ncmin,ncmax)) / binwidth;
 
-    //float fitted_sigma      = gauspeak->GetParameter(6); 
-    //float fitted_sigma_err  = gauspeak->GetParError(6); 
-    
-    //float gausbgI = gausbg->Integral( cmin1, cmax1 )/binwidth; 
-    //float peakI = gauspeak->Integral( cmin1,cmax1 )/binwidth;
-    
-    //float integral = peakI - gausbgI;
-    /*  
-    if( kin_no == 4)
-      tex = new TLatex( 0.25, 0.9, Form("R_{quasielastic} = %3.1fk /uAh", (0.001*integral/(runtime*avI/3600))));
-    else 
-      tex = new TLatex( 0.25, 0.9, Form("R_{quasielastic} = %3.1f /uAh", (integral/(runtime*avI/3600))));
+    if( kin_no == 4){
+      tex = new TLatex( 0.5, 0.9, Form("R_{proton} = %3.1fk /uAh", (0.001*pintegral/(runtime*avI/3600))));
+    tex2 = new TLatex( 0.5, 0.7, Form("R_{neutron} = %3.1fk /uAh", (0.001*nintegral/(runtime*avI/3600))));
+    }else{ 
+      tex = new TLatex( 0.5, 0.9, Form("R_{proton} = %3.1f /uAh", (pintegral/(runtime*avI/3600))));
+      tex2 = new TLatex( 0.5, 0.7, Form("R_{neutron} = %3.1f /uAh", (nintegral/(runtime*avI/3600))));
+    }
     
     tex->SetNDC(1);
     tex->SetTextFont(42);
@@ -1593,13 +1630,27 @@ void Quasielastics(const Int_t kin_no = 8) {
     tex->SetTextSize(0.05);
     tex->Draw();
       
-    tex = new TLatex( 0.25, 0.83, Form("#sigma = %3.2f %%", 100*(fitted_sigma/pcent)));
+    tex2->SetNDC(1);
+    tex2->SetTextFont(42);
+    tex2->SetTextColor(1);
+    tex2->SetTextSize(0.05);
+    tex2->Draw();
+    
+    tex = new TLatex( 0.5, 0.83, Form("#sigma = %3.2f m",pfitted_sigma));
     tex->SetNDC(1);
     tex->SetTextFont(42);
     tex->SetTextColor(1);
     tex->SetTextSize(0.05);
     tex->Draw();
-    */
+
+    tex2 = new TLatex( 0.5, 0.63, Form("#sigma = %3.2f m",nfitted_sigma));
+    tex2->SetNDC(1);
+    tex2->SetTextFont(42);
+    tex2->SetTextColor(1);
+    tex2->SetTextSize(0.05);
+    tex2->Draw();
+    
+    
     c9->Print("kinematics_6.pdf");
     //c9->Close();
   }
