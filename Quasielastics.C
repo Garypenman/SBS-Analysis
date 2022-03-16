@@ -56,7 +56,9 @@ void Quasielastics(const Int_t kin_no = 8) {
   
   //Elastic Cuts Based on Kinematic Setting
   Double_t sh_min, sh_max, sh_e, ps_min, W_min, W_max, W_minc, W_maxc;
-  Double_t hcal_ysig, hcal_xsig, hcal_ymean, hcal_xmean, hcal_xcut, hcal_ycut, pdiffcut;
+  Double_t hcal_ysig, hcal_ymean, hcal_ycut;
+  Double_t hcal_xsigp, hcal_xsign,  hcal_xmeanp, hcal_xmeann, hcal_xcutp, hcal_xcutn;
+  Double_t pdiffcut;
 
   sh_e = 0.70;
   
@@ -66,8 +68,7 @@ void Quasielastics(const Int_t kin_no = 8) {
   W_maxc = 1.5;
   
   if( kin_no == 4) { //SBS-4
-    //Need full LD2 Runs
-    //C->Add("");
+    C->Add("$OUT_DIR/LD2/*11593*.root");
     
     Eb        = 3.7278;  
     th_bb     = 36.0; 
@@ -77,21 +78,25 @@ void Quasielastics(const Int_t kin_no = 8) {
     pcent     = 2.122;  
     pres      = 0.02;   
     
-    runtime   = 0 * 60.;    
-    avI       = 3.5;     
+    runtime   = 59. * 60.;    
+    avI       = 1.75;     
 
-    pdiff_off = 0.234;
+    pdiff_off = 0.;
 
     sh_min  = 0.55;
     sh_max  = 0.85;
     ps_min  = 0.1;
 
-    hcal_xmean = -0.40;
-    hcal_xsig = 0.1;
-    hcal_ymean = -0.70;
-    hcal_ysig = 0.1;
-      
-    pdiffcut = 0.2;
+    hcal_xmeanp = -0.425;
+    hcal_xsigp = 0.193;
+    
+    hcal_ymean = -0.40;
+    hcal_ysig = 0.15;
+    
+    hcal_xmeann = -1.575;
+    hcal_xsign = 0.175;
+    
+    pdiffcut = 0.1;
 
     W_minc = 0.0;
     W_maxc = 4.0;
@@ -118,11 +123,15 @@ void Quasielastics(const Int_t kin_no = 8) {
     sh_max  = 0.95;
     ps_min  = 0.10;
       
-    hcal_xmean = -1.0;
-    hcal_xsig = 0.1;
+    hcal_xmeanp = -1.0;
+    hcal_xsigp = 0.1;
+    
     hcal_ymean = -0.2;
     hcal_ysig = 0.1;
       
+    hcal_xmeann = -1.0;
+    hcal_xsign = 0.1;
+    
     pdiffcut = 0.05;
 
     //W_minc = 0.0;
@@ -149,11 +158,15 @@ void Quasielastics(const Int_t kin_no = 8) {
     sh_max  = 1.05;
     ps_min  = 0.07;
 
-    hcal_xmean = -1.0;
-    hcal_xsig = 0.1;
+    hcal_xmeanp = -1.0;
+    hcal_xsigp = 0.1;
+   
     hcal_ymean = -0.2;
     hcal_ysig = 0.1;
-     
+    
+    hcal_xmeann = -1.0;
+    hcal_xsign = 0.1;
+    
     pdiffcut = 0.1;
   }
   else if( kin_no == 14) { //SBS-14
@@ -177,10 +190,14 @@ void Quasielastics(const Int_t kin_no = 8) {
     sh_max  = 1.05;
     ps_min  = 0.07;
     
-    hcal_xmean = -0.75;
-    hcal_xsig = 0.125;
+    hcal_xmeanp = -0.75;
+    hcal_xsigp = 0.125;
+    
     hcal_ymean = -0.4;
     hcal_ysig = 0.125;
+    
+    hcal_xmeann = -1.0;
+    hcal_xsign = 0.1;
     
     pdiffcut = 0.1;
   }
@@ -205,10 +222,14 @@ void Quasielastics(const Int_t kin_no = 8) {
     sh_max  = 1.05;
     ps_min  = 0.07;
       
-    hcal_xmean = -0.676;
-    hcal_xsig = 0.113;
+    hcal_xmeanp = -0.33;
+    hcal_xsigp = 0.2;
+    
     hcal_ymean = -0.171;
     hcal_ysig = 0.155;
+    
+    hcal_xmeann = -1.48;
+    hcal_xsign = 0.2;
     
     pdiffcut = 0.1;
    }
@@ -233,10 +254,14 @@ void Quasielastics(const Int_t kin_no = 8) {
     sh_max  = 0.95;
     ps_min  = 0.12;
     
-    hcal_xmean = -0.634;
-    hcal_xsig = 0.094;
+    hcal_xmeanp = -0.634;
+    hcal_xsigp = 0.094;
+			
     hcal_ymean = -0.460;
     hcal_ysig = 0.155;
+    
+    hcal_xmeann = -1.0;
+    hcal_xsign = 0.1;
     
     pdiffcut = 0.2;
   }
@@ -554,10 +579,9 @@ void Quasielastics(const Int_t kin_no = 8) {
     hhcal_deltay->Fill(delta_y);
     hhcal_deltaxy->Fill(delta_y,delta_x);
     
-    hcal_xcut = 3. * hcal_xsig;
+    hcal_xcutp = 2. * hcal_xsigp;
     hcal_ycut = 3. * hcal_ysig;
-    //hcal_xcut = 100;
-    //hcal_ycut = 100;
+    hcal_xcutn = 2. * hcal_xsign;
     
     if( ApplyElec ) { 
       if( T->bb_ps_e/T->bb_tr_p[0] < ps_min ) continue;
@@ -573,7 +597,7 @@ void Quasielastics(const Int_t kin_no = 8) {
       if( (T->bb_ps_e/T->bb_tr_p[0] + sh_e*T->bb_sh_e/T->bb_tr_p[0]) > sh_min ) continue;
     }
     
-    if( fabs(delta_x - hcal_xmean) < hcal_xcut){
+    if( fabs(delta_x - hcal_xmeanp) < hcal_xcutp ){
       if( fabs(delta_y - hcal_ymean) < hcal_ycut ){
 	
 	hkin_pdiffc->Fill( pdiff );
@@ -592,7 +616,28 @@ void Quasielastics(const Int_t kin_no = 8) {
 	
       }	
     }
-
+    
+    if( fabs(delta_x - hcal_xmeann) < hcal_xcutn){
+      if( fabs(delta_y - hcal_ymean) < hcal_ycut ){
+	
+	//hkin_pdiffc->Fill( pdiff );
+	
+	//if( T->e_kine_W2 < W_minc ) continue; 
+	//if( T->e_kine_W2 > W_maxc ) continue;   
+	//hkin_pc->Fill(pc);
+	//hkin_xc->Fill(T->bb_tr_x[0]);
+	//hkin_yc->Fill(T->bb_tr_y[0]);
+	//hkin_thc->Fill(T->bb_tr_tg_th[0]);
+	//hkin_phc->Fill(T->bb_tr_tg_ph[0]);
+	//hkin_ytc->Fill(T->bb_tr_tg_y[0]);
+	//hkin2d_thpc->Fill(57.3*th, pc);
+	//hkin_Wc->Fill(T->e_kine_W2);
+	hkin_deltaxyc->Fill(delta_y,delta_x);
+	
+      }	
+    }
+    
+    
     //if( T->e_kine_W2 < W_minc ) continue; 
     //if( T->e_kine_W2 > W_maxc ) continue;   
     if( fabs(pdiff) < pdiffcut ) {
@@ -1189,7 +1234,7 @@ void Quasielastics(const Int_t kin_no = 8) {
       //float a = hkin_pdiffc->GetBinContent(maxbin);
       
       float pmean    = b;
-      float pwidth   = 0.05;
+      float pwidth   = 0.06;
 
       float pmin   = pmean - 3*pwidth;    // peak minimum 
       float pmax   = pmean + 3*pwidth;    // peak maximum 
@@ -1208,22 +1253,25 @@ void Quasielastics(const Int_t kin_no = 8) {
 	hkin_pdiffc->SetBinError( i, 0 ); 
       } 
       
-      TF1* bg = new TF1("back", "pol1(0)", cmin, cmax);     // 1-D root function 
+      TF1* back = new TF1("back", "pol1(0)", cmin, cmax);     // 1-D root function 
+      //TF1* back = new TF1("back", "gaus(0)", -0.5, 0.5);     // 1-D root function 
       hkin_pdiffc->Fit("back","Q","",cmin,cmax); 
       
-      float abg = bg->Eval(b);
-      float par0 = bg->GetParameter(0); 
-      float par1 = bg->GetParameter(1); 
-      //float par2 = bg->GetParameter(2); 
-      //float par3 = bg->GetParameter(3); 
+      float abg = back->Eval(b);
+      float par0 = back->GetParameter(0); 
+      float par1 = back->GetParameter(1); 
+      //float par2 = back->GetParameter(2); 
+      //float par3 = back->GetParameter(3); 
       
-      bg->SetLineWidth(2); 
-      bg->SetLineColor(4); 
+      back->SetLineWidth(2); 
+      back->SetLineColor(4); 
+      
       
       for( int i = pbmin; i < pbmax; i++) { 
 	hkin_pdiffc->SetBinContent( i, pbins[i - pbmin] ); 
 	hkin_pdiffc->SetBinError( i, perr[i - pbmin] ); 
-      } 
+      }
+      
       
       TF1* peakbg = new TF1("peakbg", "pol1(0)+gaus(4)", cmin, cmax); 
       peakbg->FixParameter( 0, par0   ); 
@@ -1237,7 +1285,7 @@ void Quasielastics(const Int_t kin_no = 8) {
       peakbg->SetLineColor(1); 
       hkin_pdiffc->Fit("peakbg","Q","",cmin,cmax); 
       peakbg->Draw("same"); 
-      bg->Draw("same"); 
+      back->Draw("same"); 
       
       float chi2              = peakbg->GetChisquare(); 
       float NDF               = peakbg->GetNDF(); 
@@ -1246,7 +1294,7 @@ void Quasielastics(const Int_t kin_no = 8) {
       float fitted_sigma      = peakbg->GetParameter(6); 
       float fitted_sigma_err  = peakbg->GetParError(6); 
       
-      float integral     = (peakbg->Integral(cmin, cmax) - bg->Integral(cmin,cmax)) / binwidth; 
+      float integral     = (peakbg->Integral(cmin, cmax) - back->Integral(cmin,cmax)) / binwidth; 
       float integral_err = TMath::Sqrt( integral ); 
       
       if( kin_no == 4)
@@ -1497,7 +1545,7 @@ void Quasielastics(const Int_t kin_no = 8) {
     
     //delta_x fit
     float binwidth = hhcal_deltaxc->GetXaxis()->GetBinWidth(1); 
-   
+    float binsig = 3.0;
     //proton peak
     int maxbin = hhcal_deltaxc->GetMaximumBin();
 
@@ -1505,13 +1553,13 @@ void Quasielastics(const Int_t kin_no = 8) {
     float bp = hhcal_deltaxc->GetBinCenter(maxbin);
     
     float pmean    = bp;
-    float pwidth   = 0.12;
+    float pwidth   = 0.15;
     
-    float pmin   = pmean - 3*pwidth;    // peak minimum 
-    float pmax   = pmean + 3*pwidth;    // peak maximum 
+    float pmin   = pmean - binsig*pwidth;    // peak minimum 
+    float pmax   = pmean + binsig*pwidth;    // peak maximum 
     
-    float cmin   = -1.15;    // fit minimum 
-    float cmax   = -0.15;    // fit maximum 
+    float cmin   = -0.95;    // fit minimum 
+    float cmax   = 0.2;    // fit maximum 
     //float cmin = -2.5;
     //float cmax = 2.5;
     
@@ -1535,10 +1583,10 @@ void Quasielastics(const Int_t kin_no = 8) {
     float bn = hhcal_deltaxc->GetBinCenter(nmaxbin);
     
     float nmean    = bn;
-    float nwidth   = 0.05;
+    float nwidth   = 0.15;
 
-    float nmin   = nmean - 3*nwidth;    // peak minimum 
-    float nmax   = nmean + 3*nwidth;    // peak maximum 
+    float nmin   = nmean - binsig*nwidth;    // peak minimum 
+    float nmax   = nmean + binsig*nwidth;    // peak maximum 
     
     float ncmin = -2.05; // fit minimum
     float ncmax = -1.05; // fit maximum
@@ -1556,19 +1604,20 @@ void Quasielastics(const Int_t kin_no = 8) {
     } 
     
     //fit background without the two peaks
-    TF1* bg = new TF1("bg","gaus(0)",-2.5,2.5);
-    //TF1* bg = new TF1("bg","pol2(0)",-2.5,2.5);
+    //TF1* bg = new TF1("bg","gaus(0)",-2.5,2.5);
+    TF1* bg = new TF1("bg","pol3(0)",-2.5,2.5);
     bg->SetLineColor(kBlue);
     hhcal_deltaxc->Fit("bg","Q","",-2.5,2.5);
     
     double par0 = bg->GetParameter(0);
     double par1 = bg->GetParameter(1);
     double par2 = bg->GetParameter(2);
-    //double par3 = bg->GetParameter(3);
+    double par3 = bg->GetParameter(3);
     
     TFormula* bgform = bg->GetFormula();
     double apbg = bgform->Eval(bp);
     double anbg = bgform->Eval(bn);
+    
     
     //add back in the peaks
     for( int i = pbmin; i < pbmax; i++) { 
@@ -1580,15 +1629,18 @@ void Quasielastics(const Int_t kin_no = 8) {
       hhcal_deltaxc->SetBinError( i, nerr[i - nbmin] ); 
     }
     
-    TF1* ppeakbg = new TF1("ppeakbg","gaus(0)+gaus(4)",cmin,cmax);
-    TF1* npeakbg = new TF1("npeakbg","gaus(0)+gaus(4)",ncmin,ncmax);
+    
+    //TF1* ppeakbg = new TF1("ppeakbg","gaus(0)+gaus(4)",cmin,cmax);
+    //TF1* npeakbg = new TF1("npeakbg","gaus(0)+gaus(4)",ncmin,ncmax);
+    TF1* ppeakbg = new TF1("ppeakbg","pol3(0)+gaus(4)",cmin,cmax);
+    TF1* npeakbg = new TF1("npeakbg","pol3(0)+gaus(4)",ncmin,ncmax);
     ppeakbg->SetLineColor(kRed);
     npeakbg->SetLineColor(kRed);
     
     ppeakbg->FixParameter(0,par0);
     ppeakbg->FixParameter(1,par1);
     ppeakbg->FixParameter(2,par2);
-    //ppeakbg->FixParameter(3,par3);
+    ppeakbg->FixParameter(3,par3);
     ppeakbg->FixParameter(4,ap-apbg);
     ppeakbg->FixParameter(5,bp);
     ppeakbg->SetParameter(6,pwidth);
@@ -1596,7 +1648,7 @@ void Quasielastics(const Int_t kin_no = 8) {
     npeakbg->FixParameter(0,par0);
     npeakbg->FixParameter(1,par1);
     npeakbg->FixParameter(2,par2);
-    //ppeakbg->FixParameter(3,par3);
+    ppeakbg->FixParameter(3,par3);
     npeakbg->FixParameter(4,an-anbg);
     npeakbg->FixParameter(5,bn);
     npeakbg->SetParameter(6,nwidth);
